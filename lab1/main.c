@@ -9,17 +9,17 @@
 #include <errno.h>
 
 void dirwalk(char *directory, const char options) {
-    struct dirent **namelist;
-    int count;
+    struct dirent **file_names;
+    int files_count;
 
     //Sorting acording to -s
     if (options & 8)
-        count = scandir(directory, &namelist, NULL, alphasort);
+        files_count = scandir(directory, &file_names, NULL, alphasort);
     else
-        count = scandir(directory, &namelist, NULL, versionsort);
+        files_count = scandir(directory, &file_names, NULL, versionsort);
 
     //Error check
-    if (count == -1) {
+    if (files_count == -1) {
         if (errno == ENOENT)
             perror("path doesn't exist\n");
         if (errno == ENOMEM)
@@ -31,36 +31,37 @@ void dirwalk(char *directory, const char options) {
     }
 
     //Displaying current dir files
-    for (int i = 0; i < count; i++) {
-        char *file_name = namelist[i]->d_name;
-        const unsigned char file_type = namelist[i]->d_type;
+    for (int i = 0; i < files_count; i++) {
+        char *file_name = file_names[i]->d_name;
+        const unsigned char file_type = file_names[i]->d_type;
 
-        //Игнорирование каталогов . и ..
+        //Ignoring self and parent
         if (!(strcmp(file_name, ".") && strcmp(file_name, "..")))
             continue;
 
-        //Вывод согласно флагам -f -d -l
-        if (((options & 1) && (file_type == DT_LNK)) || ((options & 2) && (file_type == DT_DIR))
-            || ((options & 4) && (file_type == DT_REG)) || (!options) || (options == 8))
+        if ((options == 0) || (options == 8) || ((options & 1) && (file_type == DT_LNK))
+            || ((options & 2) && (file_type == DT_DIR)) || ((options & 4) && (file_type == DT_REG)))
             printf("%s/%s\n", directory, file_name);
     }
     //Checking sub-dirs
-    for (int i = 0; i < count; i++) {
-        const unsigned char file_type = namelist[i]->d_type;
-        const char *file_name = namelist[i]->d_name;
+    for (int i = 0; i < files_count; i++) {
+        const unsigned char file_type = file_names[i]->d_type;
+        const char *file_name = file_names[i]->d_name;
+
         if (file_type == DT_DIR && (strcmp(file_name, ".") && strcmp(file_name, ".."))) {
             char newName[PATH_MAX];
+            //Creating new name
             strcpy(newName, directory);
             strcat(newName, "/");
             strcat(newName, file_name);
             dirwalk(newName, options);
         }
     }
-    free(namelist);
+    free(file_names);
     return;
 }
 
-int main(int argc, char **argv) {
+int main(const int argc, char **argv) {
     char options = 0;
     int arguments;
     char *directory;
