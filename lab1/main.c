@@ -4,19 +4,19 @@
 #include <dirent.h>
 #include <string.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 
 void dirwalk(char *directory, const char options) {
-    struct dirent **file_names;
+    struct dirent **file_list;
     int files_count;
 
     //Sorting acording to -s
     if (options & 8)
-        files_count = scandir(directory, &file_names, NULL, alphasort);
+        files_count = scandir(directory, &file_list, NULL, alphasort);
     else
-        files_count = scandir(directory, &file_names, NULL, versionsort);
+        files_count = scandir(directory, &file_list, NULL, versionsort);
 
     //Error check
     if (files_count == -1) {
@@ -32,8 +32,8 @@ void dirwalk(char *directory, const char options) {
 
     //Displaying current dir files
     for (int i = 0; i < files_count; i++) {
-        char *file_name = file_names[i]->d_name;
-        const unsigned char file_type = file_names[i]->d_type;
+        char *file_name = file_list[i]->d_name;
+        const unsigned char file_type = file_list[i]->d_type;
 
         //Ignoring self and parent
         if (!(strcmp(file_name, ".") && strcmp(file_name, "..")))
@@ -45,8 +45,8 @@ void dirwalk(char *directory, const char options) {
     }
     //Checking sub-dirs
     for (int i = 0; i < files_count; i++) {
-        const unsigned char file_type = file_names[i]->d_type;
-        const char *file_name = file_names[i]->d_name;
+        const unsigned char file_type = file_list[i]->d_type;
+        const char *file_name = file_list[i]->d_name;
 
         if (file_type == DT_DIR && (strcmp(file_name, ".") && strcmp(file_name, ".."))) {
             char newName[PATH_MAX];
@@ -56,24 +56,26 @@ void dirwalk(char *directory, const char options) {
             strcat(newName, file_name);
             dirwalk(newName, options);
         }
+        free (file_list[i]);
     }
-    free(file_names);
+    free(file_list);
     return;
 }
 
-int main(const int argc, char **argv) {
+int main( int argc, char **argv) {
     char options = 0;
     int arguments;
     char *directory;
 
     //Getting start dirrectory
-    if (argv[argc - 1][0] != '-')
+    if ((argc > 1) && (argv[argc - 1][0] != '-'))
         directory = argv[argc - 1];
-    if (argv[1][0] != '-')
+    if ((argc > 1) && (argv[1][0] != '-'))
         directory = argv[1];
     else {
         directory = ".";
     }
+    printf("%s \n", directory);
 
     //Getting options
     while ((arguments = getopt(argc, argv, "ldfs")) != -1) {
