@@ -70,12 +70,11 @@ int main( int argc, char **argv) {
     //Getting start dirrectory
     if ((argc > 1) && (argv[argc - 1][0] != '-'))
         directory = argv[argc - 1];
-    if ((argc > 1) && (argv[1][0] != '-'))
+    else if ((argc > 1) && (argv[1][0] != '-'))
         directory = argv[1];
     else {
         directory = ".";
     }
-    printf("%s \n", directory);
 
     //Getting options
     while ((arguments = getopt(argc, argv, "ldfs")) != -1) {
