@@ -1,0 +1,4 @@
+/home/iceloca/CLionProjects/Labs/lab2/cmake-build-debug/CMakeFiles/parent.dir
+/home/iceloca/CLionProjects/Labs/lab2/cmake-build-debug/CMakeFiles/child.dir
+/home/iceloca/CLionProjects/Labs/lab2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/iceloca/CLionProjects/Labs/lab2/cmake-build-debug/CMakeFiles/rebuild_cache.dir

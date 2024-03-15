@@ -39,7 +39,7 @@ void dirwalk(char *directory, const char options) {
         if (!(strcmp(file_name, ".") && strcmp(file_name, "..")))
             continue;
 
-        if ((options == 0) || (options == 8) || ((options & 1) && (file_type == DT_LNK))
+        if ((!(options & 7)) || ((options & 1) && (file_type == DT_LNK))
             || ((options & 2) && (file_type == DT_DIR)) || ((options & 4) && (file_type == DT_REG)))
             printf("%s/%s\n", directory, file_name);
     }
